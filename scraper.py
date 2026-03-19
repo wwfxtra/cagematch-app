@@ -95,7 +95,6 @@ def parse_match_table(soup):
             table = max(all_tables, key=lambda t: len(t.find_all("tr")))
     if not table:
         print("[scraper] No table found on page")
-        # Log a snippet of the HTML for debugging
         body = soup.find("body")
         if body:
             print(f"[scraper] Body snippet: {str(body)[:500]}")
@@ -104,9 +103,42 @@ def parse_match_table(soup):
     rows = table.find_all("tr")
     print(f"[scraper] Parsing table with {len(rows)} rows")
 
+    # Auto-detect which column holds the rating (a float 0–10).
+    # Scan the first real data row (skip header rows with < 5 cells or "date" in cell 0).
+    rating_col = None
     for row in rows:
         cells = row.find_all("td")
         if len(cells) < 5:
+            continue
+        if cells[0].get_text(strip=True).lower() in ("date", "", "datum"):
+            continue
+        # Log first row cells for diagnosis
+        cell_texts = [c.get_text(strip=True) for c in cells]
+        print(f"[scraper] First data row cells: {cell_texts}")
+        # Search from index 3 onwards for a valid rating float
+        for ci in range(3, len(cells)):
+            txt = cells[ci].get_text(strip=True)
+            try:
+                v = float(txt)
+                if 0 < v <= 10:
+                    rating_col = ci
+                    break
+            except (ValueError, TypeError):
+                pass
+        break  # Only need the first data row
+
+    if rating_col is None:
+        print("[scraper] Could not auto-detect rating column — defaulting to 4")
+        rating_col = 4
+
+    votes_col = rating_col + 1
+    # promotion is assumed to be the column just before rating
+    promo_col = rating_col - 1
+    print(f"[scraper] Column map: date=0, match=1, event=2, promo={promo_col}, rating={rating_col}, votes={votes_col}")
+
+    for row in rows:
+        cells = row.find_all("td")
+        if len(cells) < rating_col + 1:
             continue
 
         try:
@@ -126,20 +158,16 @@ def parse_match_table(soup):
                 else:
                     match_link = BASE_URL + "/" + href.lstrip("/")
 
-            event_cell = cells[2]
-            event = event_cell.get_text(strip=True)
+            event = cells[2].get_text(strip=True)
+            promotion = cells[promo_col].get_text(strip=True) if promo_col >= 0 else ""
 
-            promotion_cell = cells[3]
-            promotion = promotion_cell.get_text(strip=True)
-
-            rating_cell = cells[4]
-            rating_text = rating_cell.get_text(strip=True)
+            rating_text = cells[rating_col].get_text(strip=True)
             try:
                 rating = float(rating_text)
             except (ValueError, TypeError):
                 rating = 0.0
 
-            votes_cell = cells[5] if len(cells) > 5 else None
+            votes_cell = cells[votes_col] if votes_col < len(cells) else None
             votes = votes_cell.get_text(strip=True) if votes_cell else "0"
             votes = re.sub(r'[^\d]', '', votes) or "0"
 
