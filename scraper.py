@@ -416,7 +416,8 @@ def search_wrestlers(query):
             cells = row.find_all("td")
             if not cells:
                 continue
-            link_tag = cells[0].find("a") if cells else None
+            # Link is in cells[1] (Gimmick column), not cells[0] (# column)
+            link_tag = cells[1].find("a") if len(cells) > 1 else (cells[0].find("a") if cells else None)
             if link_tag:
                 name = link_tag.get_text(strip=True)
                 href = link_tag.get("href", "")
@@ -444,7 +445,7 @@ def get_promotions():
         {"id": "8",   "name": "ROH"},
         {"id": "14",  "name": "CMLL"},
         {"id": "22",  "name": "TNA / Impact"},
-        {"id": "25",  "name": "AAA"},
+        {"id": "25",  "name": "AAAH7Cagematch"},
         {"id": "74",  "name": "NXT"},
         {"id": "447", "name": "AEW"},
     ]
