@@ -73,68 +73,54 @@ def rating_to_stars(rating):
 
 
 def parse_match_table(soup):
-    """Parse the match ratings table from a cagematch ratings page."""
+    """Parse the match ratings table from a cagematch ratings page.
+
+    Cagematch table structure (7 columns):
+      [0] #  |  [1] Date  |  [2] Promotion (img)  |  [3] Match fixture
+      [4] WON  |  [5] Rating  |  [6] Votes
+    """
     matches = []
 
-    # Log what tables exist on the page
+    # Find the matches table (class TBase on cagematch)
     all_tables = soup.find_all("table")
-    print(f"[scraper] Found {len(all_tables)} tables on page")
-    for i, t in enumerate(all_tables):
-        rows = t.find_all("tr")
-        print(f"[scraper]   table[{i}] class={t.get('class')} id={t.get('id')} rows={len(rows)}")
-
-    # Try specific cagematch table classes first
     table = (
         soup.find("table", class_="TBase")
         or soup.find("table", class_="SearchResults")
-        or soup.find("table", id=re.compile(r"match", re.I))
     )
-    if not table:
-        # Fallback: largest table on the page
-        if all_tables:
-            table = max(all_tables, key=lambda t: len(t.find_all("tr")))
+    if not table and all_tables:
+        table = max(all_tables, key=lambda t: len(t.find_all("tr")))
     if not table:
         print("[scraper] No table found on page")
-        body = soup.find("body")
-        if body:
-            print(f"[scraper] Body snippet: {str(body)[:500]}")
         return matches
 
     rows = table.find_all("tr")
     print(f"[scraper] Parsing table with {len(rows)} rows")
 
-    # Auto-detect which column holds the rating (a float 0–10).
-    # Scan the first real data row (skip header rows with < 5 cells or "date" in cell 0).
-    rating_col = None
-    for row in rows:
-        cells = row.find_all("td")
-        if len(cells) < 5:
-            continue
-        if cells[0].get_text(strip=True).lower() in ("date", "", "datum"):
-            continue
-        # Log first row cells for diagnosis
-        cell_texts = [c.get_text(strip=True) for c in cells]
-        print(f"[scraper] First data row cells: {cell_texts}")
-        # Search from index 3 onwards for a valid rating float
-        for ci in range(3, len(cells)):
-            txt = cells[ci].get_text(strip=True)
-            try:
-                v = float(txt)
-                if 0 < v <= 10:
-                    rating_col = ci
-                    break
-            except (ValueError, TypeError):
-                pass
-        break  # Only need the first data row
+    # Detect column positions from the header row
+    # Header cells contain: '#', 'Date', 'Promotion', 'Match fixture', 'WON', 'Rating', 'Votes'
+    date_col = 1      # default: column 1 is Date
+    match_col = 3     # default: column 3 is Match fixture
+    promo_col = 2     # default: column 2 is Promotion
+    rating_col = 5    # default: column 5 is Rating
+    votes_col = 6     # default: column 6 is Votes
 
-    if rating_col is None:
-        print("[scraper] Could not auto-detect rating column — defaulting to 4")
-        rating_col = 4
+    header_cells = rows[0].find_all(["th", "td"]) if rows else []
+    header_texts = [c.get_text(strip=True).lower() for c in header_cells]
+    print(f"[scraper] Header row: {header_texts}")
+    if header_texts:
+        for i, h in enumerate(header_texts):
+            if h in ("date", "datum"):
+                date_col = i
+            elif "match" in h or "fixture" in h:
+                match_col = i
+            elif h == "rating":
+                rating_col = i
+            elif h == "votes":
+                votes_col = i
+            elif h == "promotion":
+                promo_col = i
 
-    votes_col = rating_col + 1
-    # promotion is assumed to be the column just before rating
-    promo_col = rating_col - 1
-    print(f"[scraper] Column map: date=0, match=1, event=2, promo={promo_col}, rating={rating_col}, votes={votes_col}")
+    print(f"[scraper] Column map: date={date_col}, promo={promo_col}, match={match_col}, rating={rating_col}, votes={votes_col}")
 
     for row in rows:
         cells = row.find_all("td")
@@ -142,24 +128,33 @@ def parse_match_table(soup):
             continue
 
         try:
-            date = cells[0].get_text(strip=True)
-            if date.lower() in ("date", "", "datum"):
+            # Skip header rows (cell at date_col contains "date" or "datum")
+            date_text = cells[date_col].get_text(strip=True) if date_col < len(cells) else ""
+            if not date_text or date_text.lower() in ("date", "datum"):
                 continue
 
-            match_cell = cells[1]
+            date = date_text
+
+            match_cell = cells[match_col] if match_col < len(cells) else cells[1]
             match_text = match_cell.get_text(" vs ", strip=False).strip()
             match_text = re.sub(r'\s+', ' ', match_text)
             match_link_tag = match_cell.find("a")
             match_link = None
             if match_link_tag and match_link_tag.get("href"):
                 href = match_link_tag["href"]
-                if href.startswith("http"):
-                    match_link = href
-                else:
-                    match_link = BASE_URL + "/" + href.lstrip("/")
+                match_link = href if href.startswith("http") else BASE_URL + "/" + href.lstrip("/")
 
-            event = cells[2].get_text(strip=True)
-            promotion = cells[promo_col].get_text(strip=True) if promo_col >= 0 else ""
+            # Promotion: prefer image alt text (logo cell), fallback to text
+            promo_cell = cells[promo_col] if promo_col < len(cells) else None
+            if promo_cell:
+                img = promo_cell.find("img")
+                promotion = img.get("title") or img.get("alt") or "" if img else promo_cell.get_text(strip=True)
+            else:
+                promotion = ""
+
+            # WON column (index 4) — use as event info
+            event_col = match_col + 1
+            event = cells[event_col].get_text(strip=True) if event_col < len(cells) and event_col != rating_col else ""
 
             rating_text = cells[rating_col].get_text(strip=True)
             try:
