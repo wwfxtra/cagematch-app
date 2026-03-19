@@ -1,1 +1,640 @@
-test
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CageMatch" />
+  <title>CageMatch Picks</title>
+  <style>
+    :root {
+      --bg:       #0d0d0f;
+      --surface:  #1a1a1f;
+      --surface2: #252530;
+      --gold:     #f5c518;
+      --gold-dim: #a88a10;
+      --text:     #e8e8f0;
+      --text-dim: #8888a0;
+      --accent:   #e63946;
+      --radius:   12px;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bot: env(safe-area-inset-bottom);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100dvh;
+      padding-bottom: calc(80px + var(--safe-bot));
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      padding: calc(var(--safe-top) + 14px) 20px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #2a2a35;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: -0.5px;
+    }
+    header span { font-size: 1.4rem; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid #2a2a35;
+      overflow-x: auto;
+      scrollbar-width: none;
+      position: sticky;
+      top: 57px;
+      z-index: 99;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: 1;
+      min-width: 80px;
+      padding: 12px 8px;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+      white-space: nowrap;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+
+    /* ── Panels ── */
+    .panel { display: none; padding: 16px; }
+    .panel.active { display: block; }
+
+    /* ── Form elements ── */
+    .field { margin-bottom: 14px; position: relative; }
+    .field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 6px;
+    }
+    input[type="text"],
+    select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid #33334a;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      transition: border-color .2s;
+    }
+    input[type="text"]:focus,
+    select:focus { border-color: var(--gold); }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+
+    /* Autocomplete dropdown */
+    .autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--gold);
+      border-radius: var(--radius);
+      z-index: 200;
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+    }
+    .autocomplete-list.open { display: block; }
+    .autocomplete-item {
+      padding: 11px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-bottom: 1px solid #2a2a3a;
+      transition: background .15s;
+    }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:active { background: var(--gold); color: #000; }
+
+    /* Star rating filter */
+    .star-filter {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .star-btn {
+      background: var(--surface2);
+      border: 1px solid #33334a;
+      border-radius: 20px;
+      padding: 7px 14px;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .star-btn.selected {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+      font-weight: 700;
+    }
+
+    /* ── Search button ── */
+    .btn-search {
+      width: 100%;
+      background: var(--gold);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: opacity .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-search:active { opacity: 0.8; }
+    .btn-search:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Results ── */
+    #results-area { margin-top: 16px; }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .results-header h2 {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .results-header span {
+      font-size: 0.75rem;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* Match card */
+    .match-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 10px;
+      border-left: 3px solid transparent;
+      transition: border-color .2s;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .match-card:active { opacity: 0.85; }
+    .match-card.five-star { border-left-color: var(--gold); }
+    .match-card.four-plus { border-left-color: #aac; }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .match-names {
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.35;
+      flex: 1;
+    }
+    .rating-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 52px;
+    }
+    .rating-number {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .rating-stars {
+      font-size: 0.65rem;
+      color: var(--gold-dim);
+      margin-top: 2px;
+      letter-spacing: 1px;
+    }
+    .card-meta {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .meta-tag {
+      background: var(--surface2);
+      border-radius: 4px;
+      padding: 2px 7px;
+    }
+    .votes { color: var(--text-dim); font-size: 0.7rem; margin-top: 4px; }
+
+    /* ── States ── */
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--surface2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    .error-msg {
+      background: #3a1a1a;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 14px;
+      font-size: 0.85rem;
+      color: #ff8888;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span>🤼</span>
+  <h1>CageMatch Picks</h1>
+</header>
+
+<nav class="tabs">
+  <div class="tab active" data-tab="wrestler">🔍 Lutteur</div>
+  <div class="tab" data-tab="duo">🆚 Duo</div>
+  <div class="tab" data-tab="year">📅 Année</div>
+  <div class="tab" data-tab="promo">🏆 Fédé</div>
+</nav>
+
+<!-- ═══ TAB: Lutteur ═══ -->
+<div class="panel active" id="panel-wrestler">
+  <div class="field">
+    <label>Nom du lutteur</label>
+    <input type="text" id="wrestler-input" placeholder="Ex: CM Punk, Bryan Danielson…" autocomplete="off" />
+    <div class="autocomplete-list" id="wrestler-autocomplete"></div>
+  </div>
+  <div class="field">
+    <label>Note minimale</label>
+    <div class="star-filter" id="star-filter-wrestler">
+      <button class="star-btn" data-val="">Toutes</button>
+      <button class="star-btn" data-val="4">★★★★ +</button>
+      <button class="star-btn" data-val="4.5">★★★★½ +</button>
+      <button class="star-btn selected" data-val="4.75">★★★★¾ +</button>
+      <button class="star-btn" data-val="5">★★★★★</button>
+    </div>
+  </div>
+  <button class="btn-search" id="btn-wrestler">Chercher les matchs</button>
+  <div id="results-wrestler"></div>
+</div>
+
+<!-- ═══ TAB: Duo ═══ -->
+<div class="panel" id="panel-duo">
+  <div class="field">
+    <label>Lutteur 1</label>
+    <input type="text" id="duo-input-1" placeholder="Ex: Shawn Michaels" autocomplete="off" />
+    <div class="autocomplete-list" id="duo-autocomplete-1"></div>
+  </div>
+  <div class="field">
+    <label>Lutteur 2</label>
+    <input type="text" id="duo-input-2" placeholder="Ex: Bret Hart" autocomplete="off" />
+    <div class="autocomplete-list" id="duo-autocomplete-2"></div>
+  </div>
+  <button class="btn-search" id="btn-duo">Trouver leurs matchs ensemble</button>
+  <div id="results-duo"></div>
+</div>
+
+<!-- ═══ TAB: Année ═══ -->
+<div class="panel" id="panel-year">
+  <div class="field">
+    <label>Année</label>
+    <select id="year-select">
+      <option value="">-- Choisir une année --</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Note minimale</label>
+    <div class="star-filter" id="star-filter-year">
+      <button class="star-btn" data-val="">Toutes</button>
+      <button class="star-btn" data-val="4">★★★★ +</button>
+      <button class="star-btn selected" data-val="4.5">★★★★½ +</button>
+      <button class="star-btn" data-val="4.75">★★★★¾ +</button>
+      <button class="star-btn" data-val="5">★★★★★</button>
+    </div>
+  </div>
+  <button class="btn-search" id="btn-year">Voir les meilleurs matchs</button>
+  <div id="results-year"></div>
+</div>
+
+<!-- ═══ TAB: Fédération ═══ -->
+<div class="panel" id="panel-promo">
+  <div class="field">
+    <label>Fédération</label>
+    <select id="promo-select">
+      <option value="">-- Choisir une fédération --</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Note minimale</label>
+    <div class="star-filter" id="star-filter-promo">
+      <button class="star-btn" data-val="">Toutes</button>
+      <button class="star-btn" data-val="4">★★★★ +</button>
+      <button class="star-btn selected" data-val="4.5">★★★★½ +</button>
+      <button class="star-btn" data-val="4.75">★★★★¾ +</button>
+      <button class="star-btn" data-val="5">★★★★★</button>
+    </div>
+  </div>
+  <button class="btn-search" id="btn-promo">Voir les meilleurs matchs</button>
+  <div id="results-promo"></div>
+</div>
+
+
+<script>
+// ── Tabs ──────────────────────────────────────────────────────────────────
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("panel-" + tab.dataset.tab).classList.add("active");
+  });
+});
+
+// ── Star filter buttons ───────────────────────────────────────────────────
+document.querySelectorAll(".star-filter").forEach(group => {
+  group.querySelectorAll(".star-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".star-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+    });
+  });
+});
+
+function getSelectedStar(groupId) {
+  const btn = document.querySelector(`#${groupId} .star-btn.selected`);
+  return btn ? btn.dataset.val : "";
+}
+
+// ── Autocomplete ──────────────────────────────────────────────────────────
+let acTimers = {};
+
+function setupAutocomplete(inputId, listId, onSelect) {
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+
+  input.addEventListener("input", () => {
+    const q = input.value.trim();
+    clearTimeout(acTimers[inputId]);
+    if (q.length < 2) { list.classList.remove("open"); list.innerHTML = ""; return; }
+
+    acTimers[inputId] = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/wrestlers?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        list.innerHTML = "";
+        if (!data.length) { list.classList.remove("open"); return; }
+        data.forEach(w => {
+          const item = document.createElement("div");
+          item.className = "autocomplete-item";
+          item.textContent = w.name;
+          item.addEventListener("click", () => {
+            input.value = w.name;
+            list.classList.remove("open");
+            list.innerHTML = "";
+            if (onSelect) onSelect(w.name);
+          });
+          list.appendChild(item);
+        });
+        list.classList.add("open");
+      } catch (e) { console.error(e); }
+    }, 400);
+  });
+
+  document.addEventListener("click", e => {
+    if (!input.contains(e.target) && !list.contains(e.target)) {
+      list.classList.remove("open");
+    }
+  });
+}
+
+setupAutocomplete("wrestler-input", "wrestler-autocomplete");
+setupAutocomplete("duo-input-1", "duo-autocomplete-1");
+setupAutocomplete("duo-input-2", "duo-autocomplete-2");
+
+// ── Render match cards ────────────────────────────────────────────────────
+function renderMatches(container, data) {
+  container.innerHTML = "";
+  if (!data || !data.matches || data.matches.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🔍</div>
+        Aucun match trouvé avec ces filtres.
+      </div>`;
+    return;
+  }
+
+  const header = document.createElement("div");
+  header.className = "results-header";
+  header.innerHTML = `<h2>Résultats</h2><span>${data.count} match${data.count > 1 ? 's' : ''}</span>`;
+  container.appendChild(header);
+
+  data.matches.forEach(m => {
+    const stars = m.stars_numeric || 0;
+    const cls = stars >= 4.75 ? "five-star" : stars >= 4 ? "four-plus" : "";
+    const card = document.createElement("a");
+    card.className = `match-card ${cls}`;
+    card.href = m.link || "#";
+    card.target = "_blank";
+    card.rel = "noopener";
+
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="match-names">${escHtml(m.match)}</div>
+        <div class="rating-badge">
+          <div class="rating-number">${m.rating.toFixed(2)}</div>
+          <div class="rating-stars">${escHtml(m.stars_display)}</div>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span class="meta-tag">${escHtml(m.promotion)}</span>
+        <span class="meta-tag">${escHtml(m.date)}</span>
+        ${m.event ? `<span class="meta-tag">${escHtml(m.event)}</span>` : ""}
+      </div>
+      <div class="votes">👥 ${Number(m.votes).toLocaleString()} votes</div>`;
+
+    container.appendChild(card);
+  });
+}
+
+function escHtml(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function showLoading(container) {
+  container.innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      Chargement depuis Cagematch…
+    </div>`;
+}
+
+function showError(container, msg) {
+  container.innerHTML = `<div class="error-msg">⚠️ ${escHtml(msg)}</div>`;
+}
+
+async function fetchAndRender(container, params) {
+  showLoading(container);
+  try {
+    const qs = new URLSearchParams(params).toString();
+    const res = await fetch(`/api/matches?${qs}`);
+    if (!res.ok) throw new Error(`Erreur serveur ${res.status}`);
+    const data = await res.json();
+    renderMatches(container, data);
+  } catch (e) {
+    showError(container, "Impossible de contacter Cagematch. Réessaie dans quelques secondes.");
+    console.error(e);
+  }
+}
+
+// ── Wrestler tab ──────────────────────────────────────────────────────────
+document.getElementById("btn-wrestler").addEventListener("click", () => {
+  const worker = document.getElementById("wrestler-input").value.trim();
+  if (!worker) { alert("Entre le nom d'un lutteur."); return; }
+  const minRating = getSelectedStar("star-filter-wrestler");
+  fetchAndRender(document.getElementById("results-wrestler"), {
+    worker,
+    ...(minRating ? { min_rating: minRating } : {}),
+    pages: 2,
+  });
+});
+
+// ── Duo tab ───────────────────────────────────────────────────────────────
+document.getElementById("btn-duo").addEventListener("click", async () => {
+  const w1 = document.getElementById("duo-input-1").value.trim();
+  const w2 = document.getElementById("duo-input-2").value.trim();
+  if (!w1 || !w2) { alert("Entre les noms des deux lutteurs."); return; }
+  const container = document.getElementById("results-duo");
+  showLoading(container);
+  try {
+    // Fetch matches for w1, then filter locally for w2
+    const res = await fetch(`/api/matches?worker=${encodeURIComponent(w1)}&pages=3`);
+    const data = await res.json();
+    // Filter matches that also contain w2 in the match text
+    const keyword = w2.toLowerCase();
+    const filtered = (data.matches || []).filter(m =>
+      m.match.toLowerCase().includes(keyword)
+    );
+    renderMatches(container, { count: filtered.length, matches: filtered });
+  } catch (e) {
+    showError(container, "Erreur lors de la récupération des matchs.");
+  }
+});
+
+// ── Year tab ──────────────────────────────────────────────────────────────
+(async () => {
+  try {
+    const res = await fetch("/api/years");
+    const years = await res.json();
+    const sel = document.getElementById("year-select");
+    years.forEach(y => {
+      const opt = document.createElement("option");
+      opt.value = y; opt.textContent = y;
+      sel.appendChild(opt);
+    });
+    // Default to current year
+    if (years.length) sel.value = years[0];
+  } catch (e) { console.error(e); }
+})();
+
+document.getElementById("btn-year").addEventListener("click", () => {
+  const year = document.getElementById("year-select").value;
+  if (!year) { alert("Choisis une année."); return; }
+  const minRating = getSelectedStar("star-filter-year");
+  fetchAndRender(document.getElementById("results-year"), {
+    year,
+    ...(minRating ? { min_rating: minRating } : {}),
+    pages: 2,
+  });
+});
+
+// ── Promo tab ─────────────────────────────────────────────────────────────
+(async () => {
+  try {
+    const res = await fetch("/api/promotions");
+    const promos = await res.json();
+    const sel = document.getElementById("promo-select");
+    promos.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.id; opt.textContent = p.name;
+      sel.appendChild(opt);
+    });
+  } catch (e) { console.error(e); }
+})();
+
+document.getElementById("btn-promo").addEventListener("click", () => {
+  const promotion = document.getElementById("promo-select").value;
+  if (!promotion) { alert("Choisis une fédération."); return; }
+  const minRating = getSelectedStar("star-filter-promo");
+  fetchAndRender(document.getElementById("results-promo"), {
+    promotion,
+    ...(minRating ? { min_rating: minRating } : {}),
+    pages: 2,
+  });
+});
+</script>
+</body>
+</html>
