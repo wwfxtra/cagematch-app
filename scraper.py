@@ -80,6 +80,26 @@ def rating_to_stars(rating):
     return "★" * full + ("½" if half else "") + "☆" * (5 - full - half)
 
 
+def _parse_won_stars(text):
+    """Parse Meltzer/WON star text (e.g. '****1/4', '*****', '***3/4') to 0-10 float.
+    Returns 0.0 if unparseable."""
+    if not text:
+        return 0.0
+    text = text.strip()
+    full = text.count('*')
+    if full == 0:
+        return 0.0
+    frac = 0.0
+    if '3/4' in text or '\u00be' in text:
+        frac = 0.75
+    elif '1/2' in text or '\u00bd' in text:
+        frac = 0.5
+    elif '1/4' in text or '\u00bc' in text:
+        frac = 0.25
+    stars = round(full + frac, 2)
+    return round(stars * 2, 2)  # Convert to 0-10 scale for consistency
+
+
 def parse_match_table(soup):
     """Parse the match ratings table from a cagematch ratings page.
 
@@ -160,9 +180,13 @@ def parse_match_table(soup):
             else:
                 promotion = ""
 
-            # WON column (index 4) — use as event info
-            event_col = match_col + 1
-            event = cells[event_col].get_text(strip=True) if event_col < len(cells) and event_col != rating_col else ""
+            # WON column (index 4) — parse Meltzer star rating AND extract event
+            won_col = match_col + 1
+            won_text = cells[won_col].get_text(strip=True) if won_col < len(cells) and won_col != rating_col else ""
+            won_rating = _parse_won_stars(won_text)
+
+            # Event info (use WON column text if it's not the rating col, else empty)
+            event = won_text if won_col < len(cells) and won_col != rating_col and not won_text.startswith('*') else ""
 
             rating_text = cells[rating_col].get_text(strip=True)
             try:
@@ -181,10 +205,14 @@ def parse_match_table(soup):
                     "event": event,
                     "promotion": promotion,
                     "rating": rating,
+                    "won_rating": won_rating,
                     "votes": int(votes),
                     "link": match_link,
                     "stars_display": rating_to_stars(rating),
                     "stars_numeric": round(rating / 2, 2),
+                    "won_stars_display": rating_to_stars(won_rating) if won_rating else "",
+                    "won_stars_numeric": round(won_rating / 2, 2) if won_rating else 0,
+                    "rating_source": "community",
                 })
         except Exception as e:
             print(f"[scraper] Row parse error: {e}")
@@ -192,6 +220,90 @@ def parse_match_table(soup):
 
     matches.sort(key=lambda m: m["rating"], reverse=True)
     print(f"[scraper] Parsed {len(matches)} matches")
+    return matches
+
+
+def build_matchguide_url(nr, offset=0, sortby="colMeltzer", sorttype="DESC"):
+    """Build URL for wrestler's matchguide sorted by Meltzer rating."""
+    params = [
+        ("id", "2"),
+        ("nr", str(nr)),
+        ("page", "10"),
+        ("sortby", sortby),
+        ("sorttype", sorttype),
+        ("s", str(offset)),
+    ]
+    return BASE_URL + "/?" + urlencode(params)
+
+
+def parse_matchguide_table(soup):
+    """Parse the wrestler matchguide table (?id=2&nr=X&page=10).
+
+    Table columns (6):
+      [0] #  |  [1] Date  |  [2] Promotion  |  [3] Match fixture
+      [4] WON (Meltzer stars text)  |  [5] Match Type
+    """
+    matches = []
+    all_tables = soup.find_all("table")
+    table = (
+        soup.find("table", class_="TBase")
+        or soup.find("table", class_="SearchResults")
+    )
+    if not table and all_tables:
+        table = max(all_tables, key=lambda t: len(t.find_all("tr")))
+    if not table:
+        print("[scraper] No matchguide table found")
+        return matches
+
+    rows = table.find_all("tr")
+    print(f"[scraper] Parsing matchguide table with {len(rows)} rows")
+
+    for row in rows:
+        cells = row.find_all("td")
+        if len(cells) < 5:
+            continue
+        try:
+            date_text = cells[1].get_text(strip=True)
+            if not date_text or date_text.lower() in ("date", "datum"):
+                continue
+
+            promo_cell = cells[2]
+            img = promo_cell.find("img")
+            promotion = img.get("title") or img.get("alt") or "" if img else promo_cell.get_text(strip=True)
+
+            match_cell = cells[3]
+            match_text = re.sub(r'\s+', ' ', match_cell.get_text(" vs ", strip=False).strip())
+            match_link_tag = match_cell.find("a")
+            match_link = None
+            if match_link_tag and match_link_tag.get("href"):
+                href = match_link_tag["href"]
+                match_link = href if href.startswith("http") else BASE_URL + "/" + href.lstrip("/")
+
+            won_text = cells[4].get_text(strip=True) if len(cells) > 4 else ""
+            won_rating = _parse_won_stars(won_text)
+            if won_rating <= 0:
+                continue
+
+            matches.append({
+                "date": date_text,
+                "match": match_text,
+                "event": "",
+                "promotion": promotion,
+                "rating": won_rating,        # 0-10 scale (Meltzer * 2)
+                "won_rating": won_rating,
+                "votes": 0,
+                "link": match_link,
+                "stars_display": rating_to_stars(won_rating),
+                "stars_numeric": round(won_rating / 2, 2),
+                "won_stars_display": rating_to_stars(won_rating),
+                "won_stars_numeric": round(won_rating / 2, 2),
+                "rating_source": "meltzer",
+            })
+        except Exception as e:
+            print(f"[scraper] Matchguide row parse error: {e}")
+            continue
+
+    print(f"[scraper] Parsed {len(matches)} matches from matchguide")
     return matches
 
 
@@ -227,34 +339,53 @@ def get_worker_nr(worker_name):
 
 
 def get_matches(worker=None, year=None, promotion_id=None, min_rating=None, pages=1):
-    """Get rated matches with optional filters. Fetches up to `pages` pages."""
+    """Get rated matches with optional filters. Fetches up to `pages` pages.
+
+    Worker searches use the wrestler's matchguide sorted by Meltzer rating.
+    Year/promo searches use the global ratings page (community /10 ratings).
+    """
     cache_key = f"matches|{worker}|{year}|{promotion_id}|{min_rating}|{pages}"
 
     def fetch():
         all_matches = []
 
-        # Resolve worker name to numeric ID — cagematch requires ?worker=NR (not name text)
-        worker_param = None
         if worker:
+            # Worker search: use matchguide sorted by Meltzer (colMeltzer DESC)
             nr = get_worker_nr(worker)
-            worker_param = nr if nr else worker  # fallback to name if lookup fails
-
-        for page in range(pages):
-            url = build_ratings_url(
-                worker=worker_param,
-                year=year,
-                promotion_id=promotion_id,
-                min_rating=min_rating,
-                offset=page * 100,
-            )
-            print(f"[scraper] Fetching: {url}")
-            soup = fetch_soup(url, delay=0.8 if page == 0 else 1.5)
-            if not soup:
-                break
-            page_matches = parse_match_table(soup)
-            if not page_matches:
-                break
-            all_matches.extend(page_matches)
+            if not nr:
+                print(f"[scraper] Could not resolve worker nr for '{worker}'")
+                return []
+            for page in range(pages):
+                url = build_matchguide_url(nr, offset=page * 100)
+                print(f"[scraper] Fetching matchguide: {url}")
+                soup = fetch_soup(url, delay=0.8 if page == 0 else 1.5)
+                if not soup:
+                    break
+                page_matches = parse_matchguide_table(soup)
+                if not page_matches:
+                    break
+                all_matches.extend(page_matches)
+            # Apply min_rating filter: API sends 0-5 star scale, rating stored as 0-10
+            if min_rating is not None:
+                min_10 = float(min_rating) * 2
+                all_matches = [m for m in all_matches if m["rating"] >= min_10]
+        else:
+            # Year/promo search: use global "On This Day" ratings page
+            for page in range(pages):
+                url = build_ratings_url(
+                    year=year,
+                    promotion_id=promotion_id,
+                    min_rating=min_rating,
+                    offset=page * 100,
+                )
+                print(f"[scraper] Fetching: {url}")
+                soup = fetch_soup(url, delay=0.8 if page == 0 else 1.5)
+                if not soup:
+                    break
+                page_matches = parse_match_table(soup)
+                if not page_matches:
+                    break
+                all_matches.extend(page_matches)
 
         all_matches.sort(key=lambda m: m["rating"], reverse=True)
         return all_matches
