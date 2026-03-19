@@ -251,6 +251,12 @@
       color: var(--gold);
       line-height: 1;
     }
+    .rating-denom {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--gold-dim);
+      vertical-align: middle;
+    }
     .rating-stars {
       font-size: 0.65rem;
       color: var(--gold-dim);
@@ -503,7 +509,7 @@ function renderMatches(container, data) {
       <div class="card-top">
         <div class="match-names">${escHtml(m.match)}</div>
         <div class="rating-badge">
-          <div class="rating-number">${m.rating.toFixed(2)}</div>
+          <div class="rating-number">${m.rating.toFixed(2)}<span class="rating-denom">/10</span></div>
           <div class="rating-stars">${escHtml(m.stars_display)}</div>
         </div>
       </div>
