@@ -62,6 +62,14 @@ def fetch_raw(url, delay=1.0):
         return 0, str(e)
 
 
+def _extract_worker_nr(href):
+    """Extract numeric worker ID from a cagematch href (e.g. ?id=2&nr=80&...)."""
+    if not href:
+        return None
+    m = re.search(r'nr=(\d+)', href)
+    return m.group(1) if m else None
+
+
 def rating_to_stars(rating):
     """Convert cagematch 0-10 rating to star display string."""
     if not rating:
@@ -207,15 +215,33 @@ def build_ratings_url(worker=None, year=None, promotion_id=None, min_rating=None
     return url
 
 
+def get_worker_nr(worker_name):
+    """Resolve a wrestler name to their cagematch numeric ID (nr=)."""
+    results = search_wrestlers(worker_name)
+    if results:
+        nr = results[0].get("nr")
+        print(f"[scraper] Resolved '{worker_name}' -> nr={nr}")
+        return nr
+    print(f"[scraper] Could not resolve worker nr for '{worker_name}'")
+    return None
+
+
 def get_matches(worker=None, year=None, promotion_id=None, min_rating=None, pages=1):
     """Get rated matches with optional filters. Fetches up to `pages` pages."""
     cache_key = f"matches|{worker}|{year}|{promotion_id}|{min_rating}|{pages}"
 
     def fetch():
         all_matches = []
+
+        # Resolve worker name to numeric ID — cagematch requires ?worker=NR (not name text)
+        worker_param = None
+        if worker:
+            nr = get_worker_nr(worker)
+            worker_param = nr if nr else worker  # fallback to name if lookup fails
+
         for page in range(pages):
             url = build_ratings_url(
-                worker=worker,
+                worker=worker_param,
                 year=year,
                 promotion_id=promotion_id,
                 min_rating=min_rating,
@@ -264,7 +290,11 @@ def search_wrestlers(query):
                 name = link_tag.get_text(strip=True)
                 href = link_tag.get("href", "")
                 if name:
-                    wrestlers.append({"name": name, "href": href})
+                    wrestlers.append({
+                        "name": name,
+                        "href": href,
+                        "nr": _extract_worker_nr(href),
+                    })
 
         print(f"[scraper] Found {len(wrestlers)} wrestlers for '{query}'")
         return wrestlers[:20]
