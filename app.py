@@ -8,14 +8,14 @@ import scraper
 app = Flask(__name__)
 
 
-# ── Frontend ────────────────────────────────────────────────────────────────
+# ── Frontend ─────────────────────────────────────────────────────────────────
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
 
-# ── API ─────────────────────────────────────────────────────────────────────
+# ── API ──────────────────────────────────────────────────────────────────────
 
 @app.route("/api/wrestlers")
 def api_wrestlers():
@@ -44,14 +44,11 @@ def api_matches():
     min_rating_raw = request.args.get("min_rating", "").strip()
     pages = min(int(request.args.get("pages", 1)), 3)
 
-    # Convert star rating (0–5) to cagematch scale (0–10)
-    min_rating_cagematch = None
+    # Pass star rating (0–5) directly to scraper; conversion to 0–10 happens there
+    min_rating = None
     if min_rating_raw:
         try:
-            stars = float(min_rating_raw)
-            # cagematch minrating param is 0-100 (percentage of max)
-            # Actually cagematch uses 0-10 scale directly for minrating
-            min_rating_cagematch = stars * 2  # 4 stars = 8 on their scale
+            min_rating = float(min_rating_raw)
         except ValueError:
             pass
 
@@ -59,7 +56,7 @@ def api_matches():
         worker=worker,
         year=year,
         promotion_id=promotion_id,
-        min_rating=min_rating_cagematch,
+        min_rating=min_rating,
         pages=pages,
     )
 
@@ -84,7 +81,44 @@ def api_years():
     return jsonify(years)
 
 
-# ── Run ─────────────────────────────────────────────────────────────────────
+@app.route("/api/debug")
+def api_debug():
+    """Debug endpoint — shows raw structure from cagematch for a given URL."""
+    worker = request.args.get("worker", "CM Punk")
+    url = scraper.build_ratings_url(worker=worker)
+    status, html = scraper.fetch_raw(url, delay=0)
+
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(html, "lxml") if status == 200 else None
+
+    table_info = []
+    body_snippet = ""
+    title = ""
+
+    if soup:
+        title = soup.title.get_text(strip=True) if soup.title else ""
+        body_snippet = str(soup.body)[:1500] if soup.body else ""
+        for i, t in enumerate(soup.find_all("table")):
+            rows = t.find_all("tr")
+            first_row_cells = len(rows[0].find_all("td")) if rows else 0
+            table_info.append({
+                "index": i,
+                "class": t.get("class"),
+                "id": t.get("id"),
+                "rows": len(rows),
+                "first_row_cells": first_row_cells,
+            })
+
+    return jsonify({
+        "url": url,
+        "http_status": status,
+        "page_title": title,
+        "tables": table_info,
+        "body_snippet": body_snippet,
+    })
+
+
+# ── Run ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
