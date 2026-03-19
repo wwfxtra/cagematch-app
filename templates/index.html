@@ -333,13 +333,13 @@
     <div class="autocomplete-list" id="wrestler-autocomplete"></div>
   </div>
   <div class="field">
-    <label>Note minimale</label>
+    <label>Note minimale /10</label>
     <div class="star-filter" id="star-filter-wrestler">
       <button class="star-btn" data-val="">Toutes</button>
-      <button class="star-btn" data-val="4">★★★★ +</button>
-      <button class="star-btn" data-val="4.5">★★★★½ +</button>
-      <button class="star-btn selected" data-val="4.75">★★★★¾ +</button>
-      <button class="star-btn" data-val="5">★★★★★</button>
+      <button class="star-btn" data-val="7">7+</button>
+      <button class="star-btn" data-val="8">8+</button>
+      <button class="star-btn selected" data-val="9">9+</button>
+      <button class="star-btn" data-val="9.5">9.5+</button>
     </div>
   </div>
   <button class="btn-search" id="btn-wrestler">Chercher les matchs</button>
@@ -358,6 +358,16 @@
     <input type="text" id="duo-input-2" placeholder="Ex: Bret Hart" autocomplete="off" />
     <div class="autocomplete-list" id="duo-autocomplete-2"></div>
   </div>
+  <div class="field">
+    <label>Note minimale /10</label>
+    <div class="star-filter" id="star-filter-duo">
+      <button class="star-btn selected" data-val="">Toutes</button>
+      <button class="star-btn" data-val="7">7+</button>
+      <button class="star-btn" data-val="8">8+</button>
+      <button class="star-btn" data-val="9">9+</button>
+      <button class="star-btn" data-val="9.5">9.5+</button>
+    </div>
+  </div>
   <button class="btn-search" id="btn-duo">Trouver leurs matchs ensemble</button>
   <div id="results-duo"></div>
 </div>
@@ -371,13 +381,13 @@
     </select>
   </div>
   <div class="field">
-    <label>Note minimale</label>
+    <label>Note minimale /10</label>
     <div class="star-filter" id="star-filter-year">
       <button class="star-btn" data-val="">Toutes</button>
-      <button class="star-btn" data-val="4">★★★★ +</button>
-      <button class="star-btn selected" data-val="4.5">★★★★½ +</button>
-      <button class="star-btn" data-val="4.75">★★★★¾ +</button>
-      <button class="star-btn" data-val="5">★★★★★</button>
+      <button class="star-btn" data-val="7">7+</button>
+      <button class="star-btn" data-val="8">8+</button>
+      <button class="star-btn selected" data-val="9">9+</button>
+      <button class="star-btn" data-val="9.5">9.5+</button>
     </div>
   </div>
   <button class="btn-search" id="btn-year">Voir les meilleurs matchs</button>
@@ -393,13 +403,13 @@
     </select>
   </div>
   <div class="field">
-    <label>Note minimale</label>
+    <label>Note minimale /10</label>
     <div class="star-filter" id="star-filter-promo">
       <button class="star-btn" data-val="">Toutes</button>
-      <button class="star-btn" data-val="4">★★★★ +</button>
-      <button class="star-btn selected" data-val="4.5">★★★★½ +</button>
-      <button class="star-btn" data-val="4.75">★★★★¾ +</button>
-      <button class="star-btn" data-val="5">★★★★★</button>
+      <button class="star-btn" data-val="7">7+</button>
+      <button class="star-btn" data-val="8">8+</button>
+      <button class="star-btn selected" data-val="9">9+</button>
+      <button class="star-btn" data-val="9.5">9.5+</button>
     </div>
   </div>
   <button class="btn-search" id="btn-promo">Voir les meilleurs matchs</button>
@@ -428,9 +438,15 @@ document.querySelectorAll(".star-filter").forEach(group => {
   });
 });
 
-function getSelectedStar(groupId) {
+// Returns the selected /10 value as a string (e.g. "9", "9.5", "")
+function getSelectedVal(groupId) {
   const btn = document.querySelector(`#${groupId} .star-btn.selected`);
   return btn ? btn.dataset.val : "";
+}
+// Convert /10 filter value to 0–5 star scale for the API
+function toStarRating(val10) {
+  if (!val10) return null;
+  return String(parseFloat(val10) / 2);
 }
 
 // ── Autocomplete ──────────────────────────────────────────────────────────
@@ -560,7 +576,7 @@ async function fetchAndRender(container, params) {
 document.getElementById("btn-wrestler").addEventListener("click", () => {
   const worker = document.getElementById("wrestler-input").value.trim();
   if (!worker) { alert("Entre le nom d'un lutteur."); return; }
-  const minRating = getSelectedStar("star-filter-wrestler");
+  const minRating = toStarRating(getSelectedVal("star-filter-wrestler"));
   fetchAndRender(document.getElementById("results-wrestler"), {
     worker,
     ...(minRating ? { min_rating: minRating } : {}),
@@ -576,13 +592,14 @@ document.getElementById("btn-duo").addEventListener("click", async () => {
   const container = document.getElementById("results-duo");
   showLoading(container);
   try {
-    // Fetch matches for w1, then filter locally for w2
+    // Fetch matches for w1, then filter locally for w2 + min rating
     const res = await fetch(`/api/matches?worker=${encodeURIComponent(w1)}&pages=3`);
     const data = await res.json();
-    // Filter matches that also contain w2 in the match text
     const keyword = w2.toLowerCase();
+    const minVal = parseFloat(getSelectedVal("star-filter-duo") || "0");
     const filtered = (data.matches || []).filter(m =>
-      m.match.toLowerCase().includes(keyword)
+      m.match.toLowerCase().includes(keyword) &&
+      (!minVal || m.rating >= minVal)
     );
     renderMatches(container, { count: filtered.length, matches: filtered });
   } catch (e) {
@@ -609,7 +626,7 @@ document.getElementById("btn-duo").addEventListener("click", async () => {
 document.getElementById("btn-year").addEventListener("click", () => {
   const year = document.getElementById("year-select").value;
   if (!year) { alert("Choisis une année."); return; }
-  const minRating = getSelectedStar("star-filter-year");
+  const minRating = toStarRating(getSelectedVal("star-filter-year"));
   fetchAndRender(document.getElementById("results-year"), {
     year,
     ...(minRating ? { min_rating: minRating } : {}),
@@ -634,7 +651,7 @@ document.getElementById("btn-year").addEventListener("click", () => {
 document.getElementById("btn-promo").addEventListener("click", () => {
   const promotion = document.getElementById("promo-select").value;
   if (!promotion) { alert("Choisis une fédération."); return; }
-  const minRating = getSelectedStar("star-filter-promo");
+  const minRating = toStarRating(getSelectedVal("star-filter-promo"));
   fetchAndRender(document.getElementById("results-promo"), {
     promotion,
     ...(minRating ? { min_rating: minRating } : {}),
