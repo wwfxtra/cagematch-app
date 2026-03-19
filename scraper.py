@@ -8,16 +8,19 @@ from bs4 import BeautifulSoup
 import time
 import re
 from datetime import datetime, timedelta
+from urllib.parse import urlencode
 
 BASE_URL = "https://www.cagematch.net"
 
 HEADERS = {
     "User-Agent": (
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
-        "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
     ),
     "Accept-Language": "en-US,en;q=0.9",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Referer": "https://www.cagematch.net/",
 }
 
 # Simple in-memory cache: {cache_key: (timestamp, data)}
@@ -39,13 +42,24 @@ def _cached(key, fetch_fn):
 def fetch_soup(url, delay=1.0):
     """Fetch a URL and return a BeautifulSoup object."""
     try:
-        time.sleep(delay)  # Be polite to cagematch
-        resp = requests.get(url, headers=HEADERS, timeout=15)
+        time.sleep(delay)
+        resp = requests.get(url, headers=HEADERS, timeout=20)
+        print(f"[scraper] HTTP {resp.status_code} — {len(resp.text)} chars from {url}")
         resp.raise_for_status()
-        return BeautifulSoup(resp.text, "html.parser")
+        return BeautifulSoup(resp.text, "lxml")
     except Exception as e:
         print(f"[scraper] Error fetching {url}: {e}")
         return None
+
+
+def fetch_raw(url, delay=1.0):
+    """Fetch a URL and return raw text (for debugging)."""
+    try:
+        time.sleep(delay)
+        resp = requests.get(url, headers=HEADERS, timeout=20)
+        return resp.status_code, resp.text
+    except Exception as e:
+        return 0, str(e)
 
 
 def rating_to_stars(rating):
@@ -54,7 +68,7 @@ def rating_to_stars(rating):
         return ""
     stars = rating / 2  # 10 = 5 stars
     full = int(stars)
-    half = 1 if (stars - full) >= 0.5 else 0
+    half = 1 if (stars - full) >= 0.25 else 0
     return "★" * full + ("½" if half else "") + "☆" * (5 - full - half)
 
 
@@ -62,22 +76,34 @@ def parse_match_table(soup):
     """Parse the match ratings table from a cagematch ratings page."""
     matches = []
 
-    # Cagematch uses various table classes — try multiple selectors
+    # Log what tables exist on the page
+    all_tables = soup.find_all("table")
+    print(f"[scraper] Found {len(all_tables)} tables on page")
+    for i, t in enumerate(all_tables):
+        rows = t.find_all("tr")
+        print(f"[scraper]   table[{i}] class={t.get('class')} id={t.get('id')} rows={len(rows)}")
+
+    # Try specific cagematch table classes first
     table = (
         soup.find("table", class_="TBase")
         or soup.find("table", class_="SearchResults")
         or soup.find("table", id=re.compile(r"match", re.I))
     )
     if not table:
-        # Fallback: find the largest table on the page (likely the results table)
-        all_tables = soup.find_all("table")
+        # Fallback: largest table on the page
         if all_tables:
             table = max(all_tables, key=lambda t: len(t.find_all("tr")))
     if not table:
         print("[scraper] No table found on page")
+        # Log a snippet of the HTML for debugging
+        body = soup.find("body")
+        if body:
+            print(f"[scraper] Body snippet: {str(body)[:500]}")
         return matches
 
     rows = table.find_all("tr")
+    print(f"[scraper] Parsing table with {len(rows)} rows")
+
     for row in rows:
         cells = row.find_all("td")
         if len(cells) < 5:
@@ -85,17 +111,20 @@ def parse_match_table(soup):
 
         try:
             date = cells[0].get_text(strip=True)
-            # Skip header rows
-            if date.lower() in ("date", ""):
+            if date.lower() in ("date", "", "datum"):
                 continue
 
             match_cell = cells[1]
             match_text = match_cell.get_text(" vs ", strip=False).strip()
-            # Clean up extra whitespace
             match_text = re.sub(r'\s+', ' ', match_text)
             match_link_tag = match_cell.find("a")
-            match_link = (BASE_URL + "/" + match_link_tag["href"].lstrip("/")
-                          if match_link_tag and match_link_tag.get("href") else None)
+            match_link = None
+            if match_link_tag and match_link_tag.get("href"):
+                href = match_link_tag["href"]
+                if href.startswith("http"):
+                    match_link = href
+                else:
+                    match_link = BASE_URL + "/" + href.lstrip("/")
 
             event_cell = cells[2]
             event = event_cell.get_text(strip=True)
@@ -112,7 +141,6 @@ def parse_match_table(soup):
 
             votes_cell = cells[5] if len(cells) > 5 else None
             votes = votes_cell.get_text(strip=True) if votes_cell else "0"
-            # Remove non-numeric chars
             votes = re.sub(r'[^\d]', '', votes) or "0"
 
             if rating > 0:
@@ -131,27 +159,29 @@ def parse_match_table(soup):
             print(f"[scraper] Row parse error: {e}")
             continue
 
-    # Sort by rating descending
     matches.sort(key=lambda m: m["rating"], reverse=True)
+    print(f"[scraper] Parsed {len(matches)} matches")
     return matches
 
 
 def build_ratings_url(worker=None, year=None, promotion_id=None, min_rating=None, offset=0):
-    params = {
-        "id": "111",
-        "view": "matches",
-        "s": str(offset),
-    }
+    params = [
+        ("id", "111"),
+        ("view", "matches"),
+        ("s", str(offset)),
+    ]
     if worker:
-        params["worker"] = worker
+        params.append(("worker", worker))
     if year:
-        params["year"] = str(year)
+        params.append(("year", str(year)))
     if promotion_id:
-        params["promotion"] = str(promotion_id)
+        params.append(("promotion", str(promotion_id)))
     if min_rating is not None:
-        # Cagematch uses 0-10 scale; convert if needed
-        params["minrating"] = str(int(float(min_rating) * 10))
-    return BASE_URL + "/?" + "&".join(f"{k}={v}" for k, v in params.items())
+        # Cagematch uses 0-10 scale (10 = 5★); multiply stars by 2
+        cm_rating = round(float(min_rating) * 2, 1)
+        params.append(("minrating", str(cm_rating)))
+    url = BASE_URL + "/?" + urlencode(params)
+    return url
 
 
 def get_matches(worker=None, year=None, promotion_id=None, min_rating=None, pages=1):
@@ -177,7 +207,6 @@ def get_matches(worker=None, year=None, promotion_id=None, min_rating=None, page
                 break
             all_matches.extend(page_matches)
 
-        # Re-sort combined results
         all_matches.sort(key=lambda m: m["rating"], reverse=True)
         return all_matches
 
@@ -192,14 +221,17 @@ def search_wrestlers(query):
     cache_key = f"wrestlers|{query.lower()}"
 
     def fetch():
-        url = f"{BASE_URL}/?id=2&view=workers&search={requests.utils.quote(query)}"
+        url = BASE_URL + "/?" + urlencode([("id", "2"), ("view", "workers"), ("search", query)])
         print(f"[scraper] Searching wrestlers: {url}")
         soup = fetch_soup(url, delay=0.5)
         if not soup:
             return []
 
         wrestlers = []
+        # Try multiple row selectors
         rows = soup.find_all("tr", class_=["TRow1", "TRow2"])
+        if not rows:
+            rows = soup.find_all("tr")
         for row in rows:
             cells = row.find_all("td")
             if not cells:
@@ -208,8 +240,10 @@ def search_wrestlers(query):
             if link_tag:
                 name = link_tag.get_text(strip=True)
                 href = link_tag.get("href", "")
-                wrestlers.append({"name": name, "href": href})
+                if name:
+                    wrestlers.append({"name": name, "href": href})
 
+        print(f"[scraper] Found {len(wrestlers)} wrestlers for '{query}'")
         return wrestlers[:20]
 
     return _cached(cache_key, fetch)
