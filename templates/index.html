@@ -32,7 +32,7 @@
       padding-bottom: calc(80px + var(--safe-bot));
     }
 
-    /* ── Header ── */
+    /* ââ Header ââ */
     header {
       background: var(--surface);
       padding: calc(var(--safe-top) + 14px) 20px 14px;
@@ -52,7 +52,7 @@
     }
     header span { font-size: 1.4rem; }
 
-    /* ── Tabs ── */
+    /* ââ Tabs ââ */
     .tabs {
       display: flex;
       background: var(--surface);
@@ -84,11 +84,11 @@
       border-bottom-color: var(--gold);
     }
 
-    /* ── Panels ── */
+    /* ââ Panels ââ */
     .panel { display: none; padding: 16px; }
     .panel.active { display: block; }
 
-    /* ── Form elements ── */
+    /* ââ Form elements ââ */
     .field { margin-bottom: 14px; position: relative; }
     .field label {
       display: block;
@@ -170,7 +170,7 @@
       font-weight: 700;
     }
 
-    /* ── Search button ── */
+    /* ââ Search button ââ */
     .btn-search {
       width: 100%;
       background: var(--gold);
@@ -188,7 +188,7 @@
     .btn-search:active { opacity: 0.8; }
     .btn-search:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* ── Results ── */
+    /* ââ Results ââ */
     #results-area { margin-top: 16px; }
 
     .results-header {
@@ -263,6 +263,42 @@
       margin-top: 2px;
       letter-spacing: 1px;
     }
+    .rating-secondary {
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+    .rating-source-tag {
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 1px;
+    }
+    .sort-toggle {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .sort-btn {
+      background: var(--surface2);
+      border: 1px solid #33334a;
+      border-radius: 14px;
+      padding: 3px 10px;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sort-btn.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+      font-weight: 700;
+    }
     .card-meta {
       font-size: 0.75rem;
       color: var(--text-dim);
@@ -277,7 +313,7 @@
     }
     .votes { color: var(--text-dim); font-size: 0.7rem; margin-top: 4px; }
 
-    /* ── States ── */
+    /* ââ States ââ */
     .loading {
       text-align: center;
       padding: 40px 20px;
@@ -314,22 +350,22 @@
 <body>
 
 <header>
-  <span>🤼</span>
+  <span>ð¤¼</span>
   <h1>CageMatch Picks</h1>
 </header>
 
 <nav class="tabs">
-  <div class="tab active" data-tab="wrestler">🔍 Lutteur</div>
-  <div class="tab" data-tab="duo">🆚 Duo</div>
-  <div class="tab" data-tab="year">📅 Année</div>
-  <div class="tab" data-tab="promo">🏆 Fédé</div>
+  <div class="tab active" data-tab="wrestler">ð Lutteur</div>
+  <div class="tab" data-tab="duo">ð Duo</div>
+  <div class="tab" data-tab="year">ð AnnÃ©e</div>
+  <div class="tab" data-tab="promo">ð FÃ©dÃ©</div>
 </nav>
 
-<!-- ═══ TAB: Lutteur ═══ -->
+<!-- âââ TAB: Lutteur âââ -->
 <div class="panel active" id="panel-wrestler">
   <div class="field">
     <label>Nom du lutteur</label>
-    <input type="text" id="wrestler-input" placeholder="Ex: CM Punk, Bryan Danielson…" autocomplete="off" />
+    <input type="text" id="wrestler-input" placeholder="Ex: CM Punk, Bryan Danielsonâ¦" autocomplete="off" />
     <div class="autocomplete-list" id="wrestler-autocomplete"></div>
   </div>
   <div class="field">
@@ -346,7 +382,7 @@
   <div id="results-wrestler"></div>
 </div>
 
-<!-- ═══ TAB: Duo ═══ -->
+<!-- âââ TAB: Duo âââ -->
 <div class="panel" id="panel-duo">
   <div class="field">
     <label>Lutteur 1</label>
@@ -372,12 +408,12 @@
   <div id="results-duo"></div>
 </div>
 
-<!-- ═══ TAB: Année ═══ -->
+<!-- âââ TAB: AnnÃ©e âââ -->
 <div class="panel" id="panel-year">
   <div class="field">
-    <label>Année</label>
+    <label>AnnÃ©e</label>
     <select id="year-select">
-      <option value="">-- Choisir une année --</option>
+      <option value="">-- Choisir une annÃ©e --</option>
     </select>
   </div>
   <div class="field">
@@ -394,12 +430,12 @@
   <div id="results-year"></div>
 </div>
 
-<!-- ═══ TAB: Fédération ═══ -->
+<!-- âââ TAB: FÃ©dÃ©ration âââ -->
 <div class="panel" id="panel-promo">
   <div class="field">
-    <label>Fédération</label>
+    <label>FÃ©dÃ©ration</label>
     <select id="promo-select">
-      <option value="">-- Choisir une fédération --</option>
+      <option value="">-- Choisir une fÃ©dÃ©ration --</option>
     </select>
   </div>
   <div class="field">
@@ -418,7 +454,7 @@
 
 
 <script>
-// ── Tabs ──────────────────────────────────────────────────────────────────
+// ââ Tabs ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
@@ -428,7 +464,7 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
-// ── Star filter buttons ───────────────────────────────────────────────────
+// ââ Star filter buttons âââââââââââââââââââââââââââââââââââââââââââââââââââ
 document.querySelectorAll(".star-filter").forEach(group => {
   group.querySelectorAll(".star-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -443,13 +479,13 @@ function getSelectedVal(groupId) {
   const btn = document.querySelector(`#${groupId} .star-btn.selected`);
   return btn ? btn.dataset.val : "";
 }
-// Convert /10 filter value to 0–5 star scale for the API
+// Convert /10 filter value to 0â5 star scale for the API
 function toStarRating(val10) {
   if (!val10) return null;
   return String(parseFloat(val10) / 2);
 }
 
-// ── Autocomplete ──────────────────────────────────────────────────────────
+// ââ Autocomplete ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let acTimers = {};
 
 function setupAutocomplete(inputId, listId, onSelect) {
@@ -495,24 +531,59 @@ setupAutocomplete("wrestler-input", "wrestler-autocomplete");
 setupAutocomplete("duo-input-1", "duo-autocomplete-1");
 setupAutocomplete("duo-input-2", "duo-autocomplete-2");
 
-// ── Render match cards ────────────────────────────────────────────────────
-function renderMatches(container, data) {
+// ââ Render match cards ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function renderMatches(container, data, sortBy) {
   container.innerHTML = "";
   if (!data || !data.matches || data.matches.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <div class="icon">🔍</div>
-        Aucun match trouvé avec ces filtres.
+        <div class="icon">&#x1F50D;</div>
+        Aucun match trouv&#xE9; avec ces filtres.
       </div>`;
     return;
   }
 
+  // Store for re-sort
+  container._lastData = data;
+
+  // Determine sort
+  let matches = [...data.matches];
+  const hasBoth = matches.some(m => m.rating_source === 'community' && (m.won_rating || 0) > 0);
+  const activeSortBy = sortBy || (hasBoth ? 'community' : null);
+  if (activeSortBy === 'won') {
+    matches.sort((a, b) => (b.won_rating || 0) - (a.won_rating || 0));
+  } else {
+    matches.sort((a, b) => b.rating - a.rating);
+  }
+
   const header = document.createElement("div");
   header.className = "results-header";
-  header.innerHTML = `<h2>Résultats</h2><span>${data.count} match${data.count > 1 ? 's' : ''}</span>`;
+
+  let sortHtml = '';
+  if (hasBoth) {
+    sortHtml = `
+      <div class="sort-toggle">
+        <button class="sort-btn ${activeSortBy !== 'won' ? 'active' : ''}" data-sort="community">&#x2191; /10</button>
+        <button class="sort-btn ${activeSortBy === 'won' ? 'active' : ''}" data-sort="won">&#x2191; WON</button>
+      </div>`;
+  }
+
+  header.innerHTML = `
+    <div>
+      <h2>R&#xE9;sultats</h2>
+      ${sortHtml}
+    </div>
+    <span>${data.count} match${data.count > 1 ? 's' : ''}</span>`;
   container.appendChild(header);
 
-  data.matches.forEach(m => {
+  // Attach sort toggle handlers
+  header.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      renderMatches(container, container._lastData, btn.dataset.sort);
+    });
+  });
+
+  matches.forEach(m => {
     const stars = m.stars_numeric || 0;
     const cls = stars >= 4.75 ? "five-star" : stars >= 4 ? "four-plus" : "";
     const card = document.createElement("a");
@@ -521,12 +592,26 @@ function renderMatches(container, data) {
     card.target = "_blank";
     card.rel = "noopener";
 
+    const isMeltzer = m.rating_source === 'meltzer';
+    const primaryLabel = isMeltzer ? 'WON' : '/10';
+
+    const secondaryHtml = (!isMeltzer && (m.won_rating || 0) > 0)
+      ? `<div class="rating-secondary">WON ${escHtml(m.won_stars_display)}</div>`
+      : isMeltzer
+        ? `<div class="rating-source-tag">Meltzer</div>`
+        : '';
+
+    const votesHtml = m.votes > 0
+      ? `<div class="votes">&#x1F465; ${Number(m.votes).toLocaleString()} votes</div>`
+      : '';
+
     card.innerHTML = `
       <div class="card-top">
         <div class="match-names">${escHtml(m.match)}</div>
         <div class="rating-badge">
-          <div class="rating-number">${m.rating.toFixed(2)}<span class="rating-denom">/10</span></div>
+          <div class="rating-number">${m.rating.toFixed(2)}<span class="rating-denom">${primaryLabel}</span></div>
           <div class="rating-stars">${escHtml(m.stars_display)}</div>
+          ${secondaryHtml}
         </div>
       </div>
       <div class="card-meta">
@@ -534,12 +619,11 @@ function renderMatches(container, data) {
         <span class="meta-tag">${escHtml(m.date)}</span>
         ${m.event ? `<span class="meta-tag">${escHtml(m.event)}</span>` : ""}
       </div>
-      <div class="votes">👥 ${Number(m.votes).toLocaleString()} votes</div>`;
+      ${votesHtml}`;
 
     container.appendChild(card);
   });
 }
-
 function escHtml(str) {
   return String(str || "")
     .replace(/&/g, "&amp;").replace(/</g, "&lt;")
@@ -550,12 +634,12 @@ function showLoading(container) {
   container.innerHTML = `
     <div class="loading">
       <div class="spinner"></div>
-      Chargement depuis Cagematch…
+      Chargement depuis Cagematchâ¦
     </div>`;
 }
 
 function showError(container, msg) {
-  container.innerHTML = `<div class="error-msg">⚠️ ${escHtml(msg)}</div>`;
+  container.innerHTML = `<div class="error-msg">â ï¸ ${escHtml(msg)}</div>`;
 }
 
 async function fetchAndRender(container, params) {
@@ -567,12 +651,12 @@ async function fetchAndRender(container, params) {
     const data = await res.json();
     renderMatches(container, data);
   } catch (e) {
-    showError(container, "Impossible de contacter Cagematch. Réessaie dans quelques secondes.");
+    showError(container, "Impossible de contacter Cagematch. RÃ©essaie dans quelques secondes.");
     console.error(e);
   }
 }
 
-// ── Wrestler tab ──────────────────────────────────────────────────────────
+// ââ Wrestler tab ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 document.getElementById("btn-wrestler").addEventListener("click", () => {
   const worker = document.getElementById("wrestler-input").value.trim();
   if (!worker) { alert("Entre le nom d'un lutteur."); return; }
@@ -584,7 +668,7 @@ document.getElementById("btn-wrestler").addEventListener("click", () => {
   });
 });
 
-// ── Duo tab ───────────────────────────────────────────────────────────────
+// ââ Duo tab âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 document.getElementById("btn-duo").addEventListener("click", async () => {
   const w1 = document.getElementById("duo-input-1").value.trim();
   const w2 = document.getElementById("duo-input-2").value.trim();
@@ -603,11 +687,11 @@ document.getElementById("btn-duo").addEventListener("click", async () => {
     );
     renderMatches(container, { count: filtered.length, matches: filtered });
   } catch (e) {
-    showError(container, "Erreur lors de la récupération des matchs.");
+    showError(container, "Erreur lors de la rÃ©cupÃ©ration des matchs.");
   }
 });
 
-// ── Year tab ──────────────────────────────────────────────────────────────
+// ââ Year tab ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 (async () => {
   try {
     const res = await fetch("/api/years");
@@ -625,7 +709,7 @@ document.getElementById("btn-duo").addEventListener("click", async () => {
 
 document.getElementById("btn-year").addEventListener("click", () => {
   const year = document.getElementById("year-select").value;
-  if (!year) { alert("Choisis une année."); return; }
+  if (!year) { alert("Choisis une annÃ©e."); return; }
   const minRating = toStarRating(getSelectedVal("star-filter-year"));
   fetchAndRender(document.getElementById("results-year"), {
     year,
@@ -634,7 +718,7 @@ document.getElementById("btn-year").addEventListener("click", () => {
   });
 });
 
-// ── Promo tab ─────────────────────────────────────────────────────────────
+// ââ Promo tab âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 (async () => {
   try {
     const res = await fetch("/api/promotions");
@@ -650,7 +734,7 @@ document.getElementById("btn-year").addEventListener("click", () => {
 
 document.getElementById("btn-promo").addEventListener("click", () => {
   const promotion = document.getElementById("promo-select").value;
-  if (!promotion) { alert("Choisis une fédération."); return; }
+  if (!promotion) { alert("Choisis une fÃ©dÃ©ration."); return; }
   const minRating = toStarRating(getSelectedVal("star-filter-promo"));
   fetchAndRender(document.getElementById("results-promo"), {
     promotion,
