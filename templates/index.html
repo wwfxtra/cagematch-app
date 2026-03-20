@@ -32,7 +32,7 @@
       padding-bottom: calc(80px + var(--safe-bot));
     }
 
-    /* ââ Header ââ */
+    /* Ã¢ÂÂÃ¢ÂÂ Header Ã¢ÂÂÃ¢ÂÂ */
     header {
       background: var(--surface);
       padding: calc(var(--safe-top) + 14px) 20px 14px;
@@ -52,7 +52,7 @@
     }
     header span { font-size: 1.4rem; }
 
-    /* ââ Tabs ââ */
+    /* Ã¢ÂÂÃ¢ÂÂ Tabs Ã¢ÂÂÃ¢ÂÂ */
     .tabs {
       display: flex;
       background: var(--surface);
@@ -84,11 +84,11 @@
       border-bottom-color: var(--gold);
     }
 
-    /* ââ Panels ââ */
+    /* Ã¢ÂÂÃ¢ÂÂ Panels Ã¢ÂÂÃ¢ÂÂ */
     .panel { display: none; padding: 16px; }
     .panel.active { display: block; }
 
-    /* ââ Form elements ââ */
+    /* Ã¢ÂÂÃ¢ÂÂ Form elements Ã¢ÂÂÃ¢ÂÂ */
     .field { margin-bottom: 14px; position: relative; }
     .field label {
       display: block;
@@ -170,7 +170,7 @@
       font-weight: 700;
     }
 
-    /* ââ Search button ââ */
+    /* Ã¢ÂÂÃ¢ÂÂ Search button Ã¢ÂÂÃ¢ÂÂ */
     .btn-search {
       width: 100%;
       background: var(--gold);
@@ -188,7 +188,7 @@
     .btn-search:active { opacity: 0.8; }
     .btn-search:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* ââ Results ââ */
+    /* Ã¢ÂÂÃ¢ÂÂ Results Ã¢ÂÂÃ¢ÂÂ */
     #results-area { margin-top: 16px; }
 
     .results-header {
@@ -313,7 +313,7 @@
     }
     .votes { color: var(--text-dim); font-size: 0.7rem; margin-top: 4px; }
 
-    /* ââ States ââ */
+    /* Ã¢ÂÂÃ¢ÂÂ States Ã¢ÂÂÃ¢ÂÂ */
     .loading {
       text-align: center;
       padding: 40px 20px;
@@ -350,22 +350,21 @@
 <body>
 
 <header>
-  <span>ð¤¼</span>
   <h1>CageMatch Picks</h1>
 </header>
 
 <nav class="tabs">
-  <div class="tab active" data-tab="wrestler">ð Lutteur</div>
-  <div class="tab" data-tab="duo">ð Duo</div>
-  <div class="tab" data-tab="year">ð AnnÃ©e</div>
-  <div class="tab" data-tab="promo">ð FÃ©dÃ©</div>
+  <div class="tab active" data-tab="wrestler">Lutteur</div>
+  <div class="tab" data-tab="duo">Duo</div>
+  <div class="tab" data-tab="year">Ce Jour</div>
+  <div class="tab" data-tab="promo">Federation</div>
 </nav>
 
-<!-- âââ TAB: Lutteur âââ -->
+<!-- Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ TAB: Lutteur Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ -->
 <div class="panel active" id="panel-wrestler">
   <div class="field">
     <label>Nom du lutteur</label>
-    <input type="text" id="wrestler-input" placeholder="Ex: CM Punk, Bryan Danielsonâ¦" autocomplete="off" />
+    <input type="text" id="wrestler-input" placeholder="Ex: CM Punk, Bryan DanielsonÃ¢ÂÂ¦" autocomplete="off" />
     <div class="autocomplete-list" id="wrestler-autocomplete"></div>
   </div>
   <div class="field">
@@ -382,7 +381,7 @@
   <div id="results-wrestler"></div>
 </div>
 
-<!-- âââ TAB: Duo âââ -->
+<!-- Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ TAB: Duo Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ -->
 <div class="panel" id="panel-duo">
   <div class="field">
     <label>Lutteur 1</label>
@@ -408,14 +407,8 @@
   <div id="results-duo"></div>
 </div>
 
-<!-- âââ TAB: AnnÃ©e âââ -->
+<!-- Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ TAB: AnnÃÂ©e Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ -->
 <div class="panel" id="panel-year">
-  <div class="field">
-    <label>AnnÃ©e</label>
-    <select id="year-select">
-      <option value="">-- Choisir une annÃ©e --</option>
-    </select>
-  </div>
   <div class="field">
     <label>Note minimale /10</label>
     <div class="star-filter" id="star-filter-year">
@@ -426,16 +419,16 @@
       <button class="star-btn" data-val="9.5">9.5+</button>
     </div>
   </div>
-  <button class="btn-search" id="btn-year">Voir les meilleurs matchs</button>
+  <button class="btn-search" id="btn-year">Voir les matchs du jour</button>
   <div id="results-year"></div>
 </div>
 
-<!-- âââ TAB: FÃ©dÃ©ration âââ -->
+
 <div class="panel" id="panel-promo">
   <div class="field">
-    <label>FÃ©dÃ©ration</label>
+    <label>Federation</label>
     <select id="promo-select">
-      <option value="">-- Choisir une fÃ©dÃ©ration --</option>
+      <option value="">-- Choisir une federation --</option>
     </select>
   </div>
   <div class="field">
@@ -451,10 +444,11 @@
   <button class="btn-search" id="btn-promo">Voir les meilleurs matchs</button>
   <div id="results-promo"></div>
 </div>
+</div>
 
 
 <script>
-// ââ Tabs ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Tabs Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
@@ -464,7 +458,7 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
-// ââ Star filter buttons âââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Star filter buttons Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 document.querySelectorAll(".star-filter").forEach(group => {
   group.querySelectorAll(".star-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -479,13 +473,13 @@ function getSelectedVal(groupId) {
   const btn = document.querySelector(`#${groupId} .star-btn.selected`);
   return btn ? btn.dataset.val : "";
 }
-// Convert /10 filter value to 0â5 star scale for the API
+// Convert /10 filter value to 0Ã¢ÂÂ5 star scale for the API
 function toStarRating(val10) {
   if (!val10) return null;
   return String(parseFloat(val10) / 2);
 }
 
-// ââ Autocomplete ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Autocomplete Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 let acTimers = {};
 
 function setupAutocomplete(inputId, listId, onSelect) {
@@ -531,7 +525,7 @@ setupAutocomplete("wrestler-input", "wrestler-autocomplete");
 setupAutocomplete("duo-input-1", "duo-autocomplete-1");
 setupAutocomplete("duo-input-2", "duo-autocomplete-2");
 
-// ââ Render match cards ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Render match cards Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function renderMatches(container, data, sortBy) {
   container.innerHTML = "";
   if (!data || !data.matches || data.matches.length === 0) {
@@ -601,8 +595,7 @@ function renderMatches(container, data, sortBy) {
         ? `<div class="rating-source-tag">Meltzer</div>`
         : '';
 
-    const votesHtml = m.votes > 0
-      ? `<div class="votes">&#x1F465; ${Number(m.votes).toLocaleString()} votes</div>`
+    const votesHtml = m.votes > 0      ? `<div class="votes">${Number(m.votes).toLocaleString()} votes</div>`
       : '';
 
     card.innerHTML = `
@@ -634,12 +627,11 @@ function showLoading(container) {
   container.innerHTML = `
     <div class="loading">
       <div class="spinner"></div>
-      Chargement depuis Cagematchâ¦
+      Chargement depuis CagematchÃ¢ÂÂ¦
     </div>`;
 }
 
-function showError(container, msg) {
-  container.innerHTML = `<div class="error-msg">â ï¸ ${escHtml(msg)}</div>`;
+function showError(container, msg) {  container.innerHTML = `<div class="error-msg">${escHtml(msg)}</div>`;
 }
 
 async function fetchAndRender(container, params) {
@@ -651,12 +643,12 @@ async function fetchAndRender(container, params) {
     const data = await res.json();
     renderMatches(container, data);
   } catch (e) {
-    showError(container, "Impossible de contacter Cagematch. RÃ©essaie dans quelques secondes.");
+    showError(container, "Impossible de contacter Cagematch. RÃÂ©essaie dans quelques secondes.");
     console.error(e);
   }
 }
 
-// ââ Wrestler tab ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Wrestler tab Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 document.getElementById("btn-wrestler").addEventListener("click", () => {
   const worker = document.getElementById("wrestler-input").value.trim();
   if (!worker) { alert("Entre le nom d'un lutteur."); return; }
@@ -668,7 +660,7 @@ document.getElementById("btn-wrestler").addEventListener("click", () => {
   });
 });
 
-// ââ Duo tab âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Duo tab Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 document.getElementById("btn-duo").addEventListener("click", async () => {
   const w1 = document.getElementById("duo-input-1").value.trim();
   const w2 = document.getElementById("duo-input-2").value.trim();
@@ -687,38 +679,18 @@ document.getElementById("btn-duo").addEventListener("click", async () => {
     );
     renderMatches(container, { count: filtered.length, matches: filtered });
   } catch (e) {
-    showError(container, "Erreur lors de la rÃ©cupÃ©ration des matchs.");
+    showError(container, "Erreur lors de la rÃÂ©cupÃÂ©ration des matchs.");
   }
 });
-
-// ââ Year tab ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-(async () => {
-  try {
-    const res = await fetch("/api/years");
-    const years = await res.json();
-    const sel = document.getElementById("year-select");
-    years.forEach(y => {
-      const opt = document.createElement("option");
-      opt.value = y; opt.textContent = y;
-      sel.appendChild(opt);
-    });
-    // Default to current year
-    if (years.length) sel.value = years[0];
-  } catch (e) { console.error(e); }
-})();
-
+// ── Ce Jour tab ─────────────────────────────────────────────────────────────────────────────────
 document.getElementById("btn-year").addEventListener("click", () => {
-  const year = document.getElementById("year-select").value;
-  if (!year) { alert("Choisis une annÃ©e."); return; }
   const minRating = toStarRating(getSelectedVal("star-filter-year"));
   fetchAndRender(document.getElementById("results-year"), {
-    year,
     ...(minRating ? { min_rating: minRating } : {}),
     pages: 2,
   });
 });
 
-// ââ Promo tab âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 (async () => {
   try {
     const res = await fetch("/api/promotions");
@@ -733,8 +705,7 @@ document.getElementById("btn-year").addEventListener("click", () => {
 })();
 
 document.getElementById("btn-promo").addEventListener("click", () => {
-  const promotion = document.getElementById("promo-select").value;
-  if (!promotion) { alert("Choisis une fÃ©dÃ©ration."); return; }
+  const promotion = document.getElementById("promo-select").value;  if (!promotion) { alert("Choisis une federation."); return; }
   const minRating = toStarRating(getSelectedVal("star-filter-promo"));
   fetchAndRender(document.getElementById("results-promo"), {
     promotion,
