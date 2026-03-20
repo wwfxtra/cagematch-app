@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-cahpable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="CageMatch" />
   <title>CageMatch Picks</title>
@@ -590,12 +590,13 @@ function renderMatches(container, data, sortBy) {
     const primaryLabel = isMeltzer ? 'WON' : '/10';
 
     const secondaryHtml = (!isMeltzer && (m.won_rating || 0) > 0)
-      ? `<div class="rating-secondary">WON ${escHtml(m.won_stars_display)}</div>`
+      ? `<div class="rating-secondary">WON ${(m.won_rating / 2).toFixed(2)}</div>`
       : isMeltzer
         ? `<div class="rating-source-tag">Meltzer</div>`
         : '';
 
-    const votesHtml = m.votes > 0      ? `<div class="votes">${Number(m.votes).toLocaleString()} votes</div>`
+    const votesHtml = m.votes > 0
+      ? `<div class="votes">${Number(m.votes).toLocaleString()} votes</div>`
       : '';
 
     card.innerHTML = `
@@ -603,7 +604,6 @@ function renderMatches(container, data, sortBy) {
         <div class="match-names">${escHtml(m.match)}</div>
         <div class="rating-badge">
           <div class="rating-number">${m.rating.toFixed(2)}<span class="rating-denom">${primaryLabel}</span></div>
-          <div class="rating-stars">${escHtml(m.stars_display)}</div>
           ${secondaryHtml}
         </div>
       </div>
@@ -631,7 +631,8 @@ function showLoading(container) {
     </div>`;
 }
 
-function showError(container, msg) {  container.innerHTML = `<div class="error-msg">${escHtml(msg)}</div>`;
+function showError(container, msg) {
+  container.innerHTML = `<div class="error-msg">${escHtml(msg)}</div>`;
 }
 
 async function fetchAndRender(container, params) {
@@ -682,7 +683,8 @@ document.getElementById("btn-duo").addEventListener("click", async () => {
     showError(container, "Erreur lors de la rÃÂ©cupÃÂ©ration des matchs.");
   }
 });
-// ── Ce Jour tab ─────────────────────────────────────────────────────────────────────────────────
+
+// ── Ce Jour tab ─────────────────────────────────────────────────────────────────────────────────
 document.getElementById("btn-year").addEventListener("click", () => {
   const minRating = toStarRating(getSelectedVal("star-filter-year"));
   fetchAndRender(document.getElementById("results-year"), {
@@ -705,7 +707,8 @@ document.getElementById("btn-year").addEventListener("click", () => {
 })();
 
 document.getElementById("btn-promo").addEventListener("click", () => {
-  const promotion = document.getElementById("promo-select").value;  if (!promotion) { alert("Choisis une federation."); return; }
+  const promotion = document.getElementById("promo-select").value;
+  if (!promotion) { alert("Choisis une federation."); return; }
   const minRating = toStarRating(getSelectedVal("star-filter-promo"));
   fetchAndRender(document.getElementById("results-promo"), {
     promotion,
