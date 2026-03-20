@@ -1,5 +1,5 @@
 """
-scraper.py — Cagematch.net data fetcher
+scraper.py â Cagematch.net data fetcher
 Scrapes match ratings, wrestler search, and filters.
 """
 
@@ -44,7 +44,7 @@ def fetch_soup(url, delay=1.0):
     try:
         time.sleep(delay)
         resp = requests.get(url, headers=HEADERS, timeout=20)
-        print(f"[scraper] HTTP {resp.status_code} — {len(resp.text)} chars from {url}")
+        print(f"[scraper] HTTP {resp.status_code} â {len(resp.text)} chars from {url}")
         resp.raise_for_status()
         return BeautifulSoup(resp.text, "lxml")
     except Exception as e:
@@ -77,7 +77,7 @@ def rating_to_stars(rating):
     stars = rating / 2  # 10 = 5 stars
     full = int(stars)
     half = 1 if (stars - full) >= 0.25 else 0
-    return "★" * full + ("½" if half else "") + "☆" * (5 - full - half)
+    return "â" * full + ("Â½" if half else "") + "â" * (5 - full - half)
 
 
 def _parse_won_stars(text):
@@ -180,7 +180,7 @@ def parse_match_table(soup):
             else:
                 promotion = ""
 
-            # WON column (index 4) — parse Meltzer star rating AND extract event
+            # WON column (index 4) â parse Meltzer star rating AND extract event
             won_col = match_col + 1
             won_text = cells[won_col].get_text(strip=True) if won_col < len(cells) and won_col != rating_col else ""
             won_rating = _parse_won_stars(won_text)
@@ -307,24 +307,30 @@ def parse_matchguide_table(soup):
     return matches
 
 
-def build_ratings_url(worker=None, year=None, promotion_id=None, min_rating=None, offset=0):
+# Promotion name substrings for server-side filtering
+PROMOTION_NAMES = {
+    "1":   "World Wrestling Entertainment",
+    "2":   "World Championship Wrestling",
+    "3":   "Extreme Championship Wrestling",
+    "5":   "National Wrestling Alliance",
+    "6":   "New Japan Pro Wrestling",
+    "8":   "Ring Of Honor",
+    "14":  "Consejo Mundial de Lucha Libre",
+    "22":  "Total Nonstop Action",
+    "25":  "Asistencia",
+    "74":  "NXT",
+    "447": "All Elite Wrestling",
+}
+
+
+def build_ratings_url(offset=0):
+    """Build URL for the cagematch on-this-day match ratings page."""
     params = [
         ("id", "111"),
         ("view", "matches"),
         ("s", str(offset)),
     ]
-    if worker:
-        params.append(("worker", worker))
-    if year:
-        params.append(("year", str(year)))
-    if promotion_id:
-        params.append(("promotion", str(promotion_id)))
-    if min_rating is not None:
-        # Cagematch uses 0-10 scale (10 = 5★); multiply stars by 2
-        cm_rating = round(float(min_rating) * 2, 1)
-        params.append(("minrating", str(cm_rating)))
-    url = BASE_URL + "/?" + urlencode(params)
-    return url
+    return BASE_URL + "/?" + urlencode(params)
 
 
 def get_worker_nr(worker_name):
@@ -370,14 +376,9 @@ def get_matches(worker=None, year=None, promotion_id=None, min_rating=None, page
                 min_10 = float(min_rating) * 2
                 all_matches = [m for m in all_matches if m["rating"] >= min_10]
         else:
-            # Year/promo search: use global "On This Day" ratings page
+            # On This Day / federation search: use cagematch on-this-day page
             for page in range(pages):
-                url = build_ratings_url(
-                    year=year,
-                    promotion_id=promotion_id,
-                    min_rating=min_rating,
-                    offset=page * 100,
-                )
+                url = build_ratings_url(offset=page * 100)
                 print(f"[scraper] Fetching: {url}")
                 soup = fetch_soup(url, delay=0.8 if page == 0 else 1.5)
                 if not soup:
@@ -386,6 +387,20 @@ def get_matches(worker=None, year=None, promotion_id=None, min_rating=None, page
                 if not page_matches:
                     break
                 all_matches.extend(page_matches)
+
+            # Server-side promotion filter (URL param ignored by cagematch)
+            if promotion_id:
+                promo_name = PROMOTION_NAMES.get(str(promotion_id), "").lower()
+                if promo_name:
+                    all_matches = [
+                        m for m in all_matches
+                        if promo_name in m.get("promotion", "").lower()
+                    ]
+
+            # Server-side min_rating filter
+            if min_rating is not None:
+                min_10 = float(min_rating) * 2
+                all_matches = [m for m in all_matches if m["rating"] >= min_10]
 
         all_matches.sort(key=lambda m: m["rating"], reverse=True)
         return all_matches
