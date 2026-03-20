@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-cahpable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="CageMatch" />
   <title>CageMatch Picks</title>
@@ -32,7 +32,7 @@
       padding-bottom: calc(80px + var(--safe-bot));
     }
 
-    /* Ã¢ÂÂÃ¢ÂÂ Header Ã¢ÂÂÃ¢ÂÂ */
+    /* ── Header ── */
     header {
       background: var(--surface);
       padding: calc(var(--safe-top) + 14px) 20px 14px;
@@ -52,7 +52,7 @@
     }
     header span { font-size: 1.4rem; }
 
-    /* Ã¢ÂÂÃ¢ÂÂ Tabs Ã¢ÂÂÃ¢ÂÂ */
+    /* ── Tabs ── */
     .tabs {
       display: flex;
       background: var(--surface);
@@ -84,11 +84,11 @@
       border-bottom-color: var(--gold);
     }
 
-    /* Ã¢ÂÂÃ¢ÂÂ Panels Ã¢ÂÂÃ¢ÂÂ */
+    /* ── Panels ── */
     .panel { display: none; padding: 16px; }
     .panel.active { display: block; }
 
-    /* Ã¢ÂÂÃ¢ÂÂ Form elements Ã¢ÂÂÃ¢ÂÂ */
+    /* ── Form elements ── */
     .field { margin-bottom: 14px; position: relative; }
     .field label {
       display: block;
@@ -100,6 +100,7 @@
       margin-bottom: 6px;
     }
     input[type="text"],
+    input[type="number"],
     select {
       width: 100%;
       background: var(--surface2);
@@ -114,6 +115,7 @@
       transition: border-color .2s;
     }
     input[type="text"]:focus,
+    input[type="number"]:focus,
     select:focus { border-color: var(--gold); }
     select {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
@@ -170,7 +172,7 @@
       font-weight: 700;
     }
 
-    /* Ã¢ÂÂÃ¢ÂÂ Search button Ã¢ÂÂÃ¢ÂÂ */
+    /* ── Search button ── */
     .btn-search {
       width: 100%;
       background: var(--gold);
@@ -188,7 +190,7 @@
     .btn-search:active { opacity: 0.8; }
     .btn-search:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Ã¢ÂÂÃ¢ÂÂ Results Ã¢ÂÂÃ¢ÂÂ */
+    /* ── Results ── */
     #results-area { margin-top: 16px; }
 
     .results-header {
@@ -277,6 +279,7 @@
       letter-spacing: 0.5px;
       margin-top: 1px;
     }
+    /* Sort toggle */
     .sort-toggle {
       display: flex;
       gap: 4px;
@@ -313,7 +316,7 @@
     }
     .votes { color: var(--text-dim); font-size: 0.7rem; margin-top: 4px; }
 
-    /* Ã¢ÂÂÃ¢ÂÂ States Ã¢ÂÂÃ¢ÂÂ */
+    /* ── States ── */
     .loading {
       text-align: center;
       padding: 40px 20px;
@@ -356,15 +359,15 @@
 <nav class="tabs">
   <div class="tab active" data-tab="wrestler">Lutteur</div>
   <div class="tab" data-tab="duo">Duo</div>
-  <div class="tab" data-tab="year">Ce Jour</div>
+  <div class="tab" data-tab="year">Annee</div>
   <div class="tab" data-tab="promo">Federation</div>
 </nav>
 
-<!-- Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ TAB: Lutteur Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ -->
+<!-- ═══ TAB: Lutteur ═══ -->
 <div class="panel active" id="panel-wrestler">
   <div class="field">
     <label>Nom du lutteur</label>
-    <input type="text" id="wrestler-input" placeholder="Ex: CM Punk, Bryan DanielsonÃ¢ÂÂ¦" autocomplete="off" />
+    <input type="text" id="wrestler-input" placeholder="Ex: CM Punk, Bryan Danielson…" autocomplete="off" />
     <div class="autocomplete-list" id="wrestler-autocomplete"></div>
   </div>
   <div class="field">
@@ -381,7 +384,7 @@
   <div id="results-wrestler"></div>
 </div>
 
-<!-- Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ TAB: Duo Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ -->
+<!-- ═══ TAB: Duo ═══ -->
 <div class="panel" id="panel-duo">
   <div class="field">
     <label>Lutteur 1</label>
@@ -407,8 +410,12 @@
   <div id="results-duo"></div>
 </div>
 
-<!-- Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ TAB: AnnÃÂ©e Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ -->
+<!-- ═══ TAB: Annee ═══ -->
 <div class="panel" id="panel-year">
+  <div class="field">
+    <label>Annee</label>
+    <input type="number" id="year-input" placeholder="Ex: 2003" min="1950" max="2026" />
+  </div>
   <div class="field">
     <label>Note minimale /10</label>
     <div class="star-filter" id="star-filter-year">
@@ -419,11 +426,11 @@
       <button class="star-btn" data-val="9.5">9.5+</button>
     </div>
   </div>
-  <button class="btn-search" id="btn-year">Voir les matchs du jour</button>
+  <button class="btn-search" id="btn-year">Voir les meilleurs matchs</button>
   <div id="results-year"></div>
 </div>
 
-
+<!-- ═══ TAB: Federation ═══ -->
 <div class="panel" id="panel-promo">
   <div class="field">
     <label>Federation</label>
@@ -444,11 +451,10 @@
   <button class="btn-search" id="btn-promo">Voir les meilleurs matchs</button>
   <div id="results-promo"></div>
 </div>
-</div>
 
 
 <script>
-// Ã¢ÂÂÃ¢ÂÂ Tabs Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Tabs ──────────────────────────────────────────────────────────────────
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
@@ -458,7 +464,7 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
-// Ã¢ÂÂÃ¢ÂÂ Star filter buttons Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Star filter buttons ───────────────────────────────────────────────────
 document.querySelectorAll(".star-filter").forEach(group => {
   group.querySelectorAll(".star-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -473,13 +479,13 @@ function getSelectedVal(groupId) {
   const btn = document.querySelector(`#${groupId} .star-btn.selected`);
   return btn ? btn.dataset.val : "";
 }
-// Convert /10 filter value to 0Ã¢ÂÂ5 star scale for the API
+// Convert /10 filter value to 0-5 star scale for the API
 function toStarRating(val10) {
   if (!val10) return null;
   return String(parseFloat(val10) / 2);
 }
 
-// Ã¢ÂÂÃ¢ÂÂ Autocomplete Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Autocomplete ──────────────────────────────────────────────────────────
 let acTimers = {};
 
 function setupAutocomplete(inputId, listId, onSelect) {
@@ -525,14 +531,13 @@ setupAutocomplete("wrestler-input", "wrestler-autocomplete");
 setupAutocomplete("duo-input-1", "duo-autocomplete-1");
 setupAutocomplete("duo-input-2", "duo-autocomplete-2");
 
-// Ã¢ÂÂÃ¢ÂÂ Render match cards Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Render match cards ────────────────────────────────────────────────────
 function renderMatches(container, data, sortBy) {
   container.innerHTML = "";
   if (!data || !data.matches || data.matches.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <div class="icon">&#x1F50D;</div>
-        Aucun match trouv&#xE9; avec ces filtres.
+        Aucun match trouve avec ces filtres.
       </div>`;
     return;
   }
@@ -557,14 +562,14 @@ function renderMatches(container, data, sortBy) {
   if (hasBoth) {
     sortHtml = `
       <div class="sort-toggle">
-        <button class="sort-btn ${activeSortBy !== 'won' ? 'active' : ''}" data-sort="community">&#x2191; /10</button>
-        <button class="sort-btn ${activeSortBy === 'won' ? 'active' : ''}" data-sort="won">&#x2191; WON</button>
+        <button class="sort-btn ${activeSortBy !== 'won' ? 'active' : ''}" data-sort="community">\u2191 /10</button>
+        <button class="sort-btn ${activeSortBy === 'won' ? 'active' : ''}" data-sort="won">\u2191 WON</button>
       </div>`;
   }
 
   header.innerHTML = `
     <div>
-      <h2>R&#xE9;sultats</h2>
+      <h2>R\u00e9sultats</h2>
       ${sortHtml}
     </div>
     <span>${data.count} match${data.count > 1 ? 's' : ''}</span>`;
@@ -589,6 +594,7 @@ function renderMatches(container, data, sortBy) {
     const isMeltzer = m.rating_source === 'meltzer';
     const primaryLabel = isMeltzer ? 'WON' : '/10';
 
+    // Secondary rating: show WON numeric if community result has them
     const secondaryHtml = (!isMeltzer && (m.won_rating || 0) > 0)
       ? `<div class="rating-secondary">WON ${(m.won_rating / 2).toFixed(2)}</div>`
       : isMeltzer
@@ -617,6 +623,7 @@ function renderMatches(container, data, sortBy) {
     container.appendChild(card);
   });
 }
+
 function escHtml(str) {
   return String(str || "")
     .replace(/&/g, "&amp;").replace(/</g, "&lt;")
@@ -627,7 +634,7 @@ function showLoading(container) {
   container.innerHTML = `
     <div class="loading">
       <div class="spinner"></div>
-      Chargement depuis CagematchÃ¢ÂÂ¦
+      Chargement depuis Cagematch\u2026
     </div>`;
 }
 
@@ -644,12 +651,12 @@ async function fetchAndRender(container, params) {
     const data = await res.json();
     renderMatches(container, data);
   } catch (e) {
-    showError(container, "Impossible de contacter Cagematch. RÃÂ©essaie dans quelques secondes.");
+    showError(container, "Impossible de contacter Cagematch. R\u00e9essaie dans quelques secondes.");
     console.error(e);
   }
 }
 
-// Ã¢ÂÂÃ¢ÂÂ Wrestler tab Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Wrestler tab ──────────────────────────────────────────────────────────
 document.getElementById("btn-wrestler").addEventListener("click", () => {
   const worker = document.getElementById("wrestler-input").value.trim();
   if (!worker) { alert("Entre le nom d'un lutteur."); return; }
@@ -661,7 +668,7 @@ document.getElementById("btn-wrestler").addEventListener("click", () => {
   });
 });
 
-// Ã¢ÂÂÃ¢ÂÂ Duo tab Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Duo tab ───────────────────────────────────────────────────────────────
 document.getElementById("btn-duo").addEventListener("click", async () => {
   const w1 = document.getElementById("duo-input-1").value.trim();
   const w2 = document.getElementById("duo-input-2").value.trim();
@@ -680,19 +687,26 @@ document.getElementById("btn-duo").addEventListener("click", async () => {
     );
     renderMatches(container, { count: filtered.length, matches: filtered });
   } catch (e) {
-    showError(container, "Erreur lors de la rÃÂ©cupÃÂ©ration des matchs.");
+    showError(container, "Erreur lors de la r\u00e9cup\u00e9ration des matchs.");
   }
 });
 
-// ── Ce Jour tab ─────────────────────────────────────────────────────────────────────────────────
+// ── Annee tab ─────────────────────────────────────────────────────────────
 document.getElementById("btn-year").addEventListener("click", () => {
+  const yearVal = document.getElementById("year-input").value.trim();
+  if (!yearVal || !/^\d{4}$/.test(yearVal)) {
+    alert("Entre une annee valide (ex: 2003).");
+    return;
+  }
   const minRating = toStarRating(getSelectedVal("star-filter-year"));
   fetchAndRender(document.getElementById("results-year"), {
+    year: yearVal,
     ...(minRating ? { min_rating: minRating } : {}),
-    pages: 2,
+    pages: 1,
   });
 });
 
+// ── Promo tab ─────────────────────────────────────────────────────────────
 (async () => {
   try {
     const res = await fetch("/api/promotions");
