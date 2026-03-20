@@ -707,18 +707,29 @@ document.getElementById("btn-year").addEventListener("click", () => {
 });
 
 // ── Promo tab ─────────────────────────────────────────────────────────────
-(async () => {
+async function loadPromotions(attempt) {
+  attempt = attempt || 1;
   try {
     const res = await fetch("/api/promotions");
+    if (!res.ok) throw new Error("status " + res.status);
     const promos = await res.json();
+    if (!promos.length) throw new Error("empty");
     const sel = document.getElementById("promo-select");
+    while (sel.options.length > 1) sel.remove(1);
     promos.forEach(p => {
       const opt = document.createElement("option");
       opt.value = p.id; opt.textContent = p.name;
       sel.appendChild(opt);
     });
-  } catch (e) { console.error(e); }
-})();
+  } catch (e) {
+    if (attempt < 5) {
+      setTimeout(() => loadPromotions(attempt + 1), Math.min(2000 * attempt, 16000));
+    } else {
+      console.error("Failed to load promotions after 5 attempts:", e);
+    }
+  }
+}
+loadPromotions();
 
 document.getElementById("btn-promo").addEventListener("click", () => {
   const promotion = document.getElementById("promo-select").value;
